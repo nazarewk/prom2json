@@ -196,18 +196,29 @@ func ParseResponse(resp *http.Response, ch chan<- *dto.MetricFamily) error {
 			ch <- mf
 		}
 	} else {
-		// We could do further content-type checks here, but the
-		// fallback for now will anyway be the text format
-		// version 0.0.4, so just go for it and see if it works.
-		var parser expfmt.TextParser
-		metricFamilies, err := parser.TextToMetricFamilies(resp.Body)
-		if err != nil {
-			return fmt.Errorf("reading text format failed: %v", err)
-		}
-		for _, mf := range metricFamilies {
-			ch <- mf
+		if err := ParseReader(resp.Body, ch); err != nil {
+			return err
 		}
 	}
+	return nil
+}
+
+// ParseReader consumes an io.Reader and pushes it to the MetricFamily
+// channel. It returns when all all MetricFamilies are parsed and put on the
+// channel.
+func ParseReader(in io.Reader, ch chan<- *dto.MetricFamily) error {
+	// We could do further content-type checks here, but the
+	// fallback for now will anyway be the text format
+	// version 0.0.4, so just go for it and see if it works.
+	var parser expfmt.TextParser
+	metricFamilies, err := parser.TextToMetricFamilies(in)
+	if err != nil {
+		return fmt.Errorf("reading text format failed: %v", err)
+	}
+	for _, mf := range metricFamilies {
+		ch <- mf
+	}
+	close(ch)
 	return nil
 }
 

@@ -39,6 +39,14 @@ Running:
 Running with TLS client authentication:
 
     $ prom2json --cert=/path/to/certificate --key=/path/to/key http://my-prometheus-client.example.org:8080/metrics
+    
+Running with stdin:
+
+    $ prom2json --stdin < /tmp/metrics.txt
+    
+Running with file input:
+
+    $ prom2json --file /tmp/metrics.txt
 
 This will dump the JSON to `stdout`. Note that the dumped JSON is
 _not_ using the deprecated JSON format as specified in the
