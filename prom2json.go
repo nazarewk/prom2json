@@ -218,7 +218,6 @@ func ParseReader(in io.Reader, ch chan<- *dto.MetricFamily) error {
 	for _, mf := range metricFamilies {
 		ch <- mf
 	}
-	close(ch)
 	return nil
 }
 
